@@ -33,7 +33,7 @@ def check_events(ai_settings,screen,ship,bullets):
 			check_keyup_events(event,ship)
 
 
-def update_screen(ai_settings,screen,ship,aliens,bullets):
+def update_screen(ai_settings,screen,stats,ship,aliens,bullets,play_button):
 	"""更新屏幕上的图像，并切换到新屏幕"""
 	#每次循环时都重绘屏幕
 	screen.fill(ai_settings.bg_color)
@@ -42,6 +42,10 @@ def update_screen(ai_settings,screen,ship,aliens,bullets):
 		bullet.draw_bullet()
 	ship.blitme()
 	aliens.draw(screen)
+	#如果游戏处于非活动状态，就绘制Play按钮
+	if not stats.game_active:
+		play_button.draw_button()
+	#让最近绘制的屏幕可见
 	pygame.display.flip()
 
 
@@ -122,18 +126,22 @@ def change_fleet_direction(ai_settings,aliens):
 def ship_hit(ai_settings,stats,screen,ship,aliens,bullets):
 	"""响应被外星人撞到的飞船"""
 	#将ships_left减-1
-	stat.ship_left -= 1
+	if stats.ships_left > 0:
+		stat.ship_left -= 1
 
-	#清空外星人列表和子弹列表
-	aliens.empty()
-	bullets.empty()
+		#清空外星人列表和子弹列表
+		aliens.empty()
+		bullets.empty()
 
-	#创建一群新外星人，并将飞船放到屏幕低端中央
-	create_fleet(ai_settings, screen, ship, aliens)
-	ship.center_ship()
+		#创建一群新外星人，并将飞船放到屏幕低端中央
+		create_fleet(ai_settings, screen, ship, aliens)
+		ship.center_ship()
 
-	#暂停
-	sleep(0.5)
+		#暂停
+		sleep(0.5)
+
+	else:
+		stats.game_active = False
 
 def check_aliens_bottom(ai_settings,stats,screen,ship,aliens,bullets):
 	"""检查是否有外星人到达了屏幕低端"""
